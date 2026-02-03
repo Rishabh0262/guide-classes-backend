@@ -10,11 +10,12 @@ import {
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('api')
 export class AuthController {
   @Get('register')
-  register() {
+  registerTest() {
     return {
       message: 'register',
       status: 200,
@@ -26,6 +27,20 @@ export class AuthController {
     };
   }
 
+  @Post('register')
+  register(@Body() registerDto: RegisterDto) {
+    return registerDto;
+  }
+
+
+
+
+
+
+
+
+
+  
   // constructor(private readonly authService: AuthService) {}
 
   // @Post()
