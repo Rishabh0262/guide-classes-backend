@@ -8,7 +8,7 @@ import {
 export class RegisterDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  userName: string;
 
   @IsNotEmpty()
   @IsString()
@@ -17,5 +17,5 @@ export class RegisterDto {
 
   @IsNotEmpty()
   @IsStrongPassword()
-  password: string;
+  passwordHash: string;
 }
