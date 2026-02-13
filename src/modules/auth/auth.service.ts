@@ -3,11 +3,13 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcryptjs';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -61,5 +63,30 @@ export class AuthService {
     //     createdAt: savedUser.createdAt,
     //   },
     // };
+  }
+
+  async login(loginDto: LoginDto) {
+    const { email, password } = loginDto;
+
+    const user = await this.userService.getUserByEmail(email);
+
+    /* 
+        To safeguard the response or error msg from DDOS attaker we 
+        throw the same error for both user not found and invalid password "401, unauthorizedexception"
+    */
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid password');
+    }
+
+    const payload = { sub: user.id, email: user.email };
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+    };
   }
 }
