@@ -13,7 +13,7 @@ import { getJwtConfig } from './constants';
     TypeOrmModule.forFeature([Auth]),
     UserModule,
     JwtModule.registerAsync({
-      // global: true,
+      global: true,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: getJwtConfig,

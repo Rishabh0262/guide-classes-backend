@@ -1,5 +1,6 @@
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/baseEntity';
+import { Note } from '../../note/entities/note.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -24,4 +25,7 @@ export class User extends BaseEntity {
     default: UserRole.STUDENT,
   })
   role: UserRole;
+
+  @OneToMany(() => Note, (note) => note.user)
+  notes: Note[];
 }

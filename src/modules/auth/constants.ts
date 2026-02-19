@@ -13,6 +13,8 @@ export const getJwtConfig = (
   }, // Default expiration, strictly config based would be better but this is a start
 });
 
+// 💡 This is the DOCs way of doing things, we're keeping it for now
+// but we should eventually remove it
 export const jwtConstants = {
   secret: process.env.JWT_SECRET, // Keep for now if needed elsewhere, or remove if fully migrating
 };

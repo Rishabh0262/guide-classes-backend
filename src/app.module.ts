@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TestModule } from './modules/test/test.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { NoteModule } from './modules/note/note.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -19,6 +20,7 @@ import { UserModule } from './modules/user/user.module';
     TestModule,
     AuthModule,
     UserModule,
+    NoteModule,
   ],
   controllers: [AppController],
   providers: [AppService],
