@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,8 +20,8 @@ export class NoteService {
     private noteRepository: Repository<Note>,
   ) {}
 
-  create(createNoteDto: CreateNoteDto, user: JwtPayload) {
-    const note = this.noteRepository.create({
+  async create(createNoteDto: CreateNoteDto, user: JwtPayload) {
+    const note = await this.noteRepository.create({
       ...createNoteDto,
       userId: user.sub,
       createdBy: user.email,
@@ -25,21 +30,59 @@ export class NoteService {
     return this.noteRepository.save(note);
   }
 
-  // findAll(userId: string) {
-  //   const notes = this.noteRepository.find({ where: { userId } });
-  //   this.logger.log(`Notes found: ${notes}`);
-  //   return notes;
-  // }
+  async findAll(
+    { skip, take }: { skip: number; take: number },
+    userId: string,
+  ) {
+    const notes = await this.noteRepository.find({
+      skip,
+      take,
+      where: { userId },
+    });
+    this.logger.log(`Notes found: ${notes}`);
+    return notes;
+  }
 
-  // findOne(id: number) {
-  //   return this.noteRepository.findOne(id);
-  // }
+  async findOne(id: string, userId: string) {
+    const note = await this.noteRepository.findOne({ where: { id, userId } });
+    this.logger.log(`Note found: ${note}`);
+    if (!note) {
+      throw new NotFoundException(`Note with ID "${id}" not found`);
+    }
+    return note;
+  }
 
-  // update(id: number, updateNoteDto: UpdateNoteDto) {
-  //   return `This action updates a #${id} note`;
-  // }
+  async update(id: string, updateNoteDto: UpdateNoteDto, user: JwtPayload) {
+    const note = await this.findOne(id, user.sub);
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} note`;
-  // }
+    if (!note) {
+      throw new NotFoundException(`Note with ID "${id}" not found`);
+    }
+
+    if (note?.userId !== user.sub) {
+      throw new ForbiddenException(
+        `You are not authorized to update this note`,
+      );
+    }
+
+    const updatedNote = await this.noteRepository.update(id, {
+      ...updateNoteDto,
+      userId: user.sub,
+      updatedBy: user.email,
+    });
+    this.logger.log(`Note found: ${updatedNote}`);
+    if (!updatedNote) {
+      throw new NotFoundException(`Note with ID "${id}" not found`);
+    }
+    return updatedNote;
+  }
+
+  remove(id: string, user: JwtPayload) {
+    const note = this.noteRepository.update(id, {
+      isDeleted: true,
+      deletedBy: user.email,
+    });
+    this.logger.log(`Note deleted: ${note}`);
+    return note;
+  }
 }

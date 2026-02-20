@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { NoteService } from './note.service';
 import { CreateNoteDto } from './dto/create-note.dto';
@@ -29,31 +30,38 @@ export class NoteController {
     return this.noteService.create(createNoteDto, req.user);
   }
 
-  // @UseGuards(AuthGuard)
-  // @Get()
-  // findAll(
-  //   @Request() req: AuthenticatedRequest,
-  //   @Query('take') take?: string,
-  //   @Query('skip') skip?: string,
-  // ) {
-  //   const takeNum = take ? parseInt(take) : undefined;
-  //   const skipNum = skip ? parseInt(skip) : undefined;
-  //   return this.noteService.findAll(req.user.sub, takeNum, skipNum);
-  // }
+  @UseGuards(AuthGuard)
+  @Get()
+  findAll(
+    @Request() req: AuthenticatedRequest,
+    @Query('take', new ParseIntPipe({ optional: true })) take?: number,
+    @Query('skip', new ParseIntPipe({ optional: true })) skip?: number,
+  ) {
+    return this.noteService.findAll(
+      { take: take || 10, skip: skip || 0 },
+      req.user.sub, // userId convension is gonna be same, means as last while querying.
+    );
+  }
 
-  // @UseGuards(AuthGuard)
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.noteService.findOne(+id);
-  // }
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  findOne(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
+    return this.noteService.findOne(id, req.user.sub);
+  }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
-  //   return this.noteService.update(+id, updateNoteDto);
-  // }
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateNoteDto: UpdateNoteDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
+    return this.noteService.update(id, updateNoteDto, req.user);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.noteService.remove(+id);
-  // }
+  @UseGuards(AuthGuard)
+  @Delete(':id')
+  remove(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
+    return this.noteService.remove(id, req.user);
+  }
 }
