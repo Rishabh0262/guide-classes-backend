@@ -21,13 +21,13 @@ export class NoteService {
   ) {}
 
   async create(createNoteDto: CreateNoteDto, user: JwtPayload) {
-    const note = await this.noteRepository.create({
+    const note = this.noteRepository.create({
       ...createNoteDto,
       userId: user.sub,
       createdBy: user.email,
     });
     this.logger.log(`Note created: ${note.title}`);
-    return this.noteRepository.save(note);
+    return await this.noteRepository.save(note);
   }
 
   async findAll(
@@ -37,14 +37,16 @@ export class NoteService {
     const notes = await this.noteRepository.find({
       skip,
       take,
-      where: { userId },
+      where: { userId, isDeleted: false },
     });
     this.logger.log(`Notes found: ${notes}`);
     return notes;
   }
 
   async findOne(id: string, userId: string) {
-    const note = await this.noteRepository.findOne({ where: { id, userId } });
+    const note = await this.noteRepository.findOne({
+      where: { id, userId, isDeleted: false },
+    });
     this.logger.log(`Note found: ${note}`);
     if (!note) {
       throw new NotFoundException(`Note with ID "${id}" not found`);
@@ -65,11 +67,14 @@ export class NoteService {
       );
     }
 
-    const updatedNote = await this.noteRepository.update(id, {
-      ...updateNoteDto,
-      userId: user.sub,
-      updatedBy: user.email,
-    });
+    const updatedNote = await this.noteRepository.update(
+      { id, userId: user.sub, isDeleted: false },
+      {
+        ...updateNoteDto,
+        userId: user.sub,
+        updatedBy: user.email,
+      },
+    );
     this.logger.log(`Note found: ${updatedNote}`);
     if (!updatedNote) {
       throw new NotFoundException(`Note with ID "${id}" not found`);
@@ -77,11 +82,14 @@ export class NoteService {
     return updatedNote;
   }
 
-  remove(id: string, user: JwtPayload) {
-    const note = this.noteRepository.update(id, {
-      isDeleted: true,
-      deletedBy: user.email,
-    });
+  async remove(id: string, user: JwtPayload) {
+    const note = await this.noteRepository.update(
+      { id, userId: user.sub, isDeleted: false },
+      {
+        isDeleted: true,
+        deletedBy: user.email,
+      },
+    );
     this.logger.log(`Note deleted: ${note}`);
     return note;
   }

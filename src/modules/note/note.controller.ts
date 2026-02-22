@@ -10,6 +10,7 @@ import {
   Request,
   Query,
   ParseIntPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { NoteService } from './note.service';
 import { CreateNoteDto } from './dto/create-note.dto';
@@ -45,14 +46,17 @@ export class NoteController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
     return this.noteService.findOne(id, req.user.sub);
   }
 
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateNoteDto: UpdateNoteDto,
     @Request() req: AuthenticatedRequest,
   ) {
@@ -61,7 +65,10 @@ export class NoteController {
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
+  remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
     return this.noteService.remove(id, req.user);
   }
 }
