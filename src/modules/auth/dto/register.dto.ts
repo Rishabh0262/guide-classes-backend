@@ -3,12 +3,17 @@ import {
   IsString,
   IsEmail,
   IsStrongPassword,
+  IsOptional,
 } from 'class-validator';
 
 export class RegisterDto {
   @IsNotEmpty()
   @IsString()
-  userName: string;
+  firstName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
 
   @IsNotEmpty()
   @IsString()
@@ -16,6 +21,11 @@ export class RegisterDto {
   email: string;
 
   @IsNotEmpty()
+  @IsString()
   @IsStrongPassword()
-  passwordHash: string;
+  password: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
 }

@@ -15,14 +15,8 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  create(registerDto: RegisterDto) {
-    const { userName, email, passwordHash } = registerDto;
-
-    const user = this.userRepository.create({
-      name: userName,
-      email,
-      passwordHash,
-    });
+  async create(registerDto: RegisterDto) {
+    const user = this.userRepository.create(registerDto);
 
     return this.userRepository.save(user);
   }

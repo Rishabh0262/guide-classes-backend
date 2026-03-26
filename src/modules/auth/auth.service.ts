@@ -21,7 +21,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, passwordHash, userName } = registerDto;
+    const { email, password, firstName, lastName } = registerDto;
 
     // 1. check email already exist
     const existingUser = await this.userService.getUserByEmail(email);
@@ -32,25 +32,21 @@ export class AuthService {
 
     // 2. Hash the password
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(passwordHash, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 3. Create user
-    const newUser = {
-      userName,
+    this.logger.log('User created successfully', email);
+
+    const savedUser = await this.userService.create({
+      firstName,
+      lastName,
       email,
-      passwordHash: hashedPassword,
-    };
-
-    this.logger.log('User created successfully', newUser.userName);
-
-    const savedUser = await this.userService.create(newUser);
+      password: hashedPassword,
+    });
 
     const payload = { sub: savedUser.id, email: savedUser.email };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
-
-    return savedUser;
 
     // // 4. Generate JWT (Placeholder for now)
     // // 5. Return token as response (Returning user for now as per request)
@@ -78,7 +74,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       throw new BadRequestException('Invalid password');

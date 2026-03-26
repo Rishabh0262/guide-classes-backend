@@ -8,6 +8,14 @@ import { TestModule } from './modules/test/test.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { NoteModule } from './modules/note/note.module';
+import { ClassModule } from './modules/class/class.module';
+import { CourseModule } from './modules/course/course.module';
+import { SubjectModule } from './modules/subject/subject.module';
+import { EnrollmentModule } from './modules/enrollment/enrollment.module';
+import { CareerModule } from './modules/career/career.module';
+import { TestimonialModule } from './modules/testimonial/testimonial.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
+import { OffersModule } from './modules/offers/offers.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -21,6 +29,14 @@ import { NoteModule } from './modules/note/note.module';
     AuthModule,
     UserModule,
     NoteModule,
+    ClassModule,
+    CourseModule,
+    SubjectModule,
+    EnrollmentModule,
+    CareerModule,
+    TestimonialModule,
+    ReviewsModule,
+    OffersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
