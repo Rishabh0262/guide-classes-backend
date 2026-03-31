@@ -21,6 +21,10 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  async findById(id: string) {
+    return this.userRepository.findOne({ where: { id } });
+  }
+
   findAll() {
     return `This action returns all user`;
   }
