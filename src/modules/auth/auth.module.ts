@@ -18,8 +18,11 @@ import { getJwtConfig } from './constants';
       inject: [ConfigService],
       useFactory: getJwtConfig,
     }),
+    // forwardRef(() => UserModule),
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],
+  exports: [AuthService],
 })
 export class AuthModule {}

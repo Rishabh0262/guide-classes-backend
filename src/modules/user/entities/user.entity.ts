@@ -6,12 +6,6 @@ import { Enrollment } from 'src/modules/enrollment/entities/enrollment.entity';
 import { Testimonial } from 'src/modules/testimonial/entities/testimonial.entity';
 import { Review } from 'src/modules/reviews/entities/review.entity';
 
-export enum UserRole {
-  ADMIN = 'admin',
-  TEACHER = 'teacher',
-  STUDENT = 'student',
-}
-
 @Entity()
 export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
