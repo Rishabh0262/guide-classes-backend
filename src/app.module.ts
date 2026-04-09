@@ -16,6 +16,9 @@ import { CareerModule } from './modules/career/career.module';
 import { TestimonialModule } from './modules/testimonial/testimonial.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { OffersModule } from './modules/offers/offers.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { RolesGuard } from './common/guards/roles.guard';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -39,6 +42,16 @@ import { OffersModule } from './modules/offers/offers.module';
     OffersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

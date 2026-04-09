@@ -12,6 +12,15 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe());
 
+  app.enableCors(); // for development
+  /*
+  app.enableCors({
+    origin: ['https://your-frontend.com', 'https://admin.your-frontend.com'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+  */
   const config = new DocumentBuilder()
     .setTitle('Guide Classes API')
     .setDescription('The Guide Classes API description')
