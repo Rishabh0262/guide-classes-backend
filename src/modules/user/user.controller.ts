@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,7 +14,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { GetUser } from '../../common/decorators/user.decorator';
 import { Role } from '../../common/enums/role.enum';
-import type { JwtPayload } from '../auth/types/jwt-payload.type';
+import type { AuthUser } from '../auth/types/auth-user.type';
 
 @Controller('user')
 export class UserController {
@@ -31,8 +32,8 @@ export class UserController {
   }
 
   @Get('profile')
-  async getProfile(@GetUser() user: JwtPayload) {
-    return this.userService.findById(user.sub);
+  async getProfile(@GetUser() user: AuthUser) {
+    return this.userService.findById(user.id);
   }
 
   // @Get('stats/:studentId')
@@ -47,8 +48,24 @@ export class UserController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @GetUser() user: AuthUser,
+  ) {
+    // Only the user themselves or an admin can update a profile
+    if (user.id !== id && user.role !== Role.ADMIN) {
+      throw new ForbiddenException(
+        'You are not authorized to update this user',
+      );
+    }
+
+    // Prevent non-admins from changing the role field (privilege escalation)
+    if (user.role !== Role.ADMIN) {
+      delete updateUserDto.role;
+    }
+
+    return await this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
